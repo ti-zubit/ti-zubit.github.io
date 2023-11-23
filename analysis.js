@@ -1,5 +1,5 @@
-function fetchData(yearmonth) {
-  fetch('https://script.google.com/macros/s/AKfycbwU9eCTCE3OiQjbkBhoTh8tTI1Lh0XFJtWh19360j6lKEyXcV2AvZBIW0t3TPV6dgo2/exec' + "?yearmonth=" + yearmonth)
+async function fetchDataAsync(yearmonth) {
+  await fetch('https://script.google.com/macros/s/AKfycbxEb2_mENr882g6KWBNLbbAJ7B5R8hvwZ1pIX0bpdyWIDfAnl_ZPQDuzRKqy3RV-8yS/exec' + "?yearmonth=" + yearmonth)
   .then(response => {
     if (!response.ok) {
       throw new Error('Network response was not ok');
@@ -57,9 +57,32 @@ function fetchData(yearmonth) {
 
     document.body.appendChild(tbl);
 
-
   }
 
-  const query = "2023-11"
+  // クエリ文字列をオブジェクトに変換
+function parseQueryString(queryString) {
+  const params = {};
+  const queryStringWithoutQuestionMark = queryString.slice(1); // 先頭の ? を削除
 
-  fetchData(query);
+  queryStringWithoutQuestionMark.split('&').forEach(pair => {
+    const [key, value] = pair.split('=');
+    params[key] = decodeURIComponent(value?.replace(/\+/g, ' '));
+  });
+
+  return params;
+}
+
+function setTitle(yearmonth){
+  document.getElementById("heading").textContent = "Analysis: " + yearmonth;
+}
+
+  const queryString = window.location.search;
+  const queryParams =parseQueryString(queryString);
+
+  let yearmonth;
+  if(queryParams.yearmonth) {
+    yearmonth = queryParams.yearmonth;
+
+    setTitle(yearmonth);
+    fetchDataAsync(yearmonth);
+  }

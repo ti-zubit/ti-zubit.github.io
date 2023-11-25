@@ -11,6 +11,7 @@ async function fetchSurvivalDataAsync(yearmonth) {
     .then(jsonData => {
       if (!jsonData.data) {
         console.log(jsonData.error);
+        document.getElementById("survialTableMsg").textContent = "No data.";
       } else {
         generateTable(jsonData.data, yearmonth); // サーバーから取得したデータを表示
       }
@@ -21,7 +22,7 @@ async function fetchSurvivalDataAsync(yearmonth) {
 }
 
 async function fetchTemperatureDataAsync(place, year, month) {
-  let url = "https://script.google.com/macros/s/AKfycbzuVR7wior3JEWch0Xg5pYzz-GhIqyL9yUrOuclqfmXeGwKijOWSPVtTcp2U8r9EzYV/exec";
+  let url = "https://script.google.com/macros/s/AKfycbx_7ysrxM_lBAS1RfSn0pJ67-NsTEjN_X3kouEd1nQ0MBesQf7tDNXw2WGGl7QcgdHG/exec";
   let queryString = `?place=${place ? place : ""}&year=${year ? year : ""}&month=${month ? month : ""}`;
   url += queryString;
   await fetch(url)
@@ -55,6 +56,11 @@ function utc2Jst(utcDate) {
 
 function generateTable(data, yearmonth) {
 
+  if(data.length < 1) {
+    
+    return;
+  }
+
   // <table>, <thead>, <tbody>作成
   const tbl = document.createElement("table");
   const tblHead = document.createElement("thead");
@@ -87,15 +93,15 @@ function generateTable(data, yearmonth) {
 
     tblBody.appendChild(row);
 
-    tbl.setAttribute("border", "2");
-
   };
+
+  tbl.setAttribute("border", "2");
 
   tbl.appendChild(tblHead);
   tbl.appendChild(tblBody);
 
   document.getElementById("survialTable").appendChild(tbl);
-
+  document.getElementById("survialTableMsg").textContent = "";
 }
 
 function doPlot(data, label, id) {
@@ -104,6 +110,10 @@ function doPlot(data, label, id) {
   for (var item in data) {
     labels.push(utc2Jst(Date.parse(data[item].time)));
     values.push(data[item].temp);
+  }
+  if(values.length < 1) {
+    document.getElementById(id + "Msg").textContent = "No data.";
+    return;
   }
 
   const ctx = document.getElementById(id);
@@ -118,24 +128,31 @@ function doPlot(data, label, id) {
       }]
     },
     options: {
+      elements: {
+        point: {
+          radius: 0
+        }
+      },
       scales: {
         x:
         {
           scaleLabel: {
             display: true,
-            text: "Date (JST)"
+            labelString: "Date (JST)"
           },
         },
         y:
         {
           scaleLabel: {
             display: true,
-            text: "Temperature (℃)",
+            labelString: "Temperature (℃)",
           },
         }
       }
     }
   });
+
+  document.getElementById(id + "Msg").textContent = "";
 }
 
 // クエリ文字列をオブジェクトに変換
@@ -167,4 +184,4 @@ if (year && month) {
 }
 fetchSurvivalDataAsync(yearmonth);
 fetchTemperatureDataAsync("balcony", year, month);
-fetchTemperatureDataAsync("room", year, month);
+fetchTemperatureDataAsync("indoor", year, month);

@@ -3,12 +3,20 @@
 <head>
     <title>Seedling</title>
     <meta charset="utf-8" />
-</head>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <body>
     <h1 id="heading">Analysis</h1>
 
     <h2>Survival status of seedling</h2>
     <div id="survialTable"></div>
+
+    <h2>Temperature</h2>
+    <div id="temperatureChart" style="width: 100%; max-width: 1200px; max-height: 600px;">
+        <h3>Balcony</h3>
+        <canvas id="balcony"></canvas>
+        <h3>Indoor</h3>
+        <canvas id="room"></canvas>
+    </div>
 
     <script src="./analysis.js"></script>
 </body>

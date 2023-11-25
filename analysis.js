@@ -1,6 +1,6 @@
 async function fetchSurvivalDataAsync(yearmonth) {
   let url = 'https://script.google.com/macros/s/AKfycbw6tJxQqIj4bnLqisHO510iEQkPDbNkSE857X7reZld5PJ9w4_jsNZ2PE8pxNHM_OJr/exec';
-  url += yearmonth ? "?yearmonth=" + yearmonth : ""; 
+  url += yearmonth ? "?yearmonth=" + yearmonth : "";
   await fetch(url)
     .then(response => {
       if (!response.ok) {
@@ -8,20 +8,49 @@ async function fetchSurvivalDataAsync(yearmonth) {
       }
       return response.json(); // JSONデータを取得する例
     })
-    .then(data => {
-      if (!data.data) {
-        console.log(data.error);
+    .then(jsonData => {
+      if (!jsonData.data) {
+        console.log(jsonData.error);
       } else {
-        generateTable(data.data, yearmonth); // サーバーから取得したデータを表示
+        generateTable(jsonData.data, yearmonth); // サーバーから取得したデータを表示
       }
     })
     .catch(error => {
-      console.error('There has been a problem with your fetch operation:', error);
+      console.error('There has been a problem in fetchSurvivalDataAsync:', error);
     });
 }
 
-async function fetchTemperatureDataAsync(place, month, year){
+async function fetchTemperatureDataAsync(place, year, month) {
+  let url = "https://script.google.com/macros/s/AKfycbzuVR7wior3JEWch0Xg5pYzz-GhIqyL9yUrOuclqfmXeGwKijOWSPVtTcp2U8r9EzYV/exec";
+  let queryString = `?place=${place ? place : ""}&year=${year ? year : ""}&month=${month ? month : ""}`;
+  url += queryString;
+  await fetch(url)
+    .then(responce => {
+      if (!responce.ok) {
+        throw new Error(responce.json().data.message ? responce.json().data.message : "Network response was not ok");
+      }
+      return responce.json();
+    })
+    .then(jsonData => {
+      doPlot(jsonData.data, place, place);
+    })
+    .catch(error => {
+      console.error('There has been a problem in fetchTemperatureDataAsync:', error);
+    })
+}
 
+function utc2Jst(utcDate) {
+  var japanTime = new Intl.DateTimeFormat('ja-JP', {
+    timeZone: 'Asia/Tokyo',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false // 24時間制
+  }).format(utcDate);
+
+  return japanTime;
 }
 
 function generateTable(data, yearmonth) {
@@ -69,6 +98,46 @@ function generateTable(data, yearmonth) {
 
 }
 
+function doPlot(data, label, id) {
+  let labels = [];
+  let values = [];
+  for (var item in data) {
+    labels.push(utc2Jst(Date.parse(data[item].time)));
+    values.push(data[item].temp);
+  }
+
+  const ctx = document.getElementById(id);
+
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: label,
+        data: values,
+      }]
+    },
+    options: {
+      scales: {
+        x:
+        {
+          scaleLabel: {
+            display: true,
+            text: "Date (JST)"
+          },
+        },
+        y:
+        {
+          scaleLabel: {
+            display: true,
+            text: "Temperature (℃)",
+          },
+        }
+      }
+    }
+  });
+}
+
 // クエリ文字列をオブジェクトに変換
 function parseQueryString(queryString) {
   const params = {};
@@ -89,8 +158,13 @@ function setTitle(yearmonth) {
 const queryString = window.location.search;
 const queryParams = parseQueryString(queryString);
 
+const year = queryParams.year;
+const month = queryParams.month;
 let yearmonth = "";
-if (queryParams.year && queryParams.month) {
+if (year && month) {
   yearmonth = queryParams.year + "-" + queryParams.month;
+  setTitle(yearmonth);
 }
 fetchSurvivalDataAsync(yearmonth);
+fetchTemperatureDataAsync("balcony", year, month);
+fetchTemperatureDataAsync("room", year, month);

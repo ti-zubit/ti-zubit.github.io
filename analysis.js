@@ -21,23 +21,49 @@ async function fetchSurvivalDataAsync(yearmonth) {
     });
 }
 
-async function fetchTemperatureDataAsync(place, year, month) {
-  let url = "https://script.google.com/macros/s/AKfycbx_7ysrxM_lBAS1RfSn0pJ67-NsTEjN_X3kouEd1nQ0MBesQf7tDNXw2WGGl7QcgdHG/exec";
-  let queryString = `?place=${place ? place : ""}&year=${year ? year : ""}&month=${month ? month : ""}`;
-  url += queryString;
-  await fetch(url)
-    .then(responce => {
-      if (!responce.ok) {
-        throw new Error(responce.json().data.message ? responce.json().data.message : "Network response was not ok");
+async function fetchTemperatureDataAsync(placeList, year, month) {
+  try {
+    let msg = document.getElementById("chartMsg").textContent;
+    msg = "Loading...";
+
+    let placeDataList = [];
+    let url = "https://script.google.com/macros/s/AKfycbx_7ysrxM_lBAS1RfSn0pJ67-NsTEjN_X3kouEd1nQ0MBesQf7tDNXw2WGGl7QcgdHG/exec";
+
+    for (let place of placeList) {
+      let queryString = `?place=${place ? place : ""}&year=${year ? year : ""}&month=${month ? month : ""}`;
+      url += queryString;
+      const responce = await fetch(url);
+
+      if (responce.status !== 200) {
+        throw `response.status = ${response.status}, response.statusText = ${response.statusText}`;
       }
-      return responce.json();
-    })
-    .then(jsonData => {
-      doPlot(jsonData.data, place, place);
-    })
-    .catch(error => {
-      console.error('There has been a problem in fetchTemperatureDataAsync:', error);
-    })
+
+      const jsonData = await responce.json();
+
+      if(jsonData.data.length > 0) {
+        let labels = [];
+        let values = [];
+        for (var item in jsonData.data) {
+          labels.push(utc2Jst(Date.parse(jsonData.data[item].time)));
+          values.push(jsonData.data[item].temp);
+        }
+        placeDataList.push({placeName: place, labels, values});
+      }
+    }
+
+    if(placeDataList < 1) {
+      msg = "No Data.";
+      return;
+    }
+
+    doPlot(placeDataList, "chart");
+
+    msg = "";
+
+  }
+  catch (err) {
+    console.log("error: " + err);
+  }
 }
 
 function utc2Jst(utcDate) {
@@ -104,29 +130,20 @@ function generateTable(data, yearmonth) {
   document.getElementById("survialTableMsg").textContent = "";
 }
 
-function doPlot(data, label, id) {
+function doPlot(placeDataList, id) {
+
   let labels = [];
-  let values = [];
-  for (var item in data) {
-    labels.push(utc2Jst(Date.parse(data[item].time)));
-    values.push(data[item].temp);
+  let datasets = [];
+  for(let place of placeDataList) {
+    labels = place.labels.length > labels.length ? place.labels : labels;
+    datasets.push(getChartParam(place.placeName, place.values));
   }
-  if(values.length < 1) {
-    document.getElementById(id + "Msg").textContent = "No data.";
-    return;
-  }
-
+  
   const ctx = document.getElementById(id);
-
   new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: labels,
-      datasets: [{
-        label: label,
-        data: values,
-      }]
-    },
+    type: "line",
+    labels: labels,
+    datasets: datasets,
     options: {
       elements: {
         point: {
@@ -150,10 +167,15 @@ function doPlot(data, label, id) {
         }
       }
     }
-  });
-
-  document.getElementById(id + "Msg").textContent = "";
+  })
 }
+
+function getChartParam(label, values) {
+  return {
+        label: label,
+        data: values,
+    }
+  };
 
 // クエリ文字列をオブジェクトに変換
 function parseQueryString(queryString) {
@@ -183,5 +205,5 @@ if (year && month) {
   setTitle(yearmonth);
 }
 fetchSurvivalDataAsync(yearmonth);
-fetchTemperatureDataAsync("balcony", year, month);
-fetchTemperatureDataAsync("indoor", year, month);
+const placeList = ["balcony", "indoor"];
+fetchTemperatureDataAsync(placeList, year, month);

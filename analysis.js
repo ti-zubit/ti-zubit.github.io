@@ -11,8 +11,10 @@ async function fetchSurvivalDataAsync(url, yearmonth) {
       if (!jsonData.data) {
         console.log(jsonData.error);
         document.getElementById("survialTableMsg").textContent = "No data.";
-      } else {
-        generateTable(jsonData.data, yearmonth, "link"); // サーバーから取得したデータを表示
+      } 
+      else {
+        const survivalCurveLink = "./survival_curve.html";
+        generateTable(jsonData.data, yearmonth, survivalCurveLink); // サーバーから取得したデータを表示
       }
     })
     .catch(error => {
@@ -87,12 +89,16 @@ function generateTable(data, yearmonth, linkPage) {
         cell = document.createElement("th");
         cell.appendChild(cellText);
       }
-      else { 
+      else if (i == 1) {
         cell = document.createElement("td");
         link = document.createElement("a");
-        link.href = `${linkPage}?species=${cellText}`;
+        link.href = `${linkPage}?species=${element[property_names[i]]}`;
         link.appendChild(cellText);
         cell.appendChild(link);
+      }
+      else { 
+        cell = document.createElement("td");
+        cell.appendChild(cellText);
       };
       
       row.appendChild(cell);
@@ -182,18 +188,20 @@ function setTitle(yearmonth) {
 const queryString = window.location.search;
 const queryParams = parseQueryString(queryString);
 
-const year = queryParams.year;
-const month = queryParams.month;
+let year = queryParams.year;
+let month = queryParams.month;
 let yearmonth;
 if (year && month) {
-  yearmonth = `${queryParams.year}-${queryParams.month}`;
-} 
+  yearmonth = `${year}-${month}`;
+}
 else {
   let now = new Date();
-  yearmonth = `${now.getFullYear()}-${now.getMonth() + 1}`;
+  year = now.getFullYear();
+  month = now.getMonth() + 1;
+  yearmonth = `${year}-${month}`;
 }
 
-const survivaDataUrl = 'https://script.google.com/macros/s/AKfycbxek33L1V5POTFd3WqY0iiFSPIzqIVCm0BmlRwvyWVXEXEJB7kxkutHPLIfzxW4lFM/exec';
+const survivaDataUrl = 'https://script.google.com/macros/s/AKfycbxcGy5dG0TvLrzs2h1U96rG98J1bn5rXNSBC0tnJ8e40IfbVq-Cg1ANSYM6Yae2npVn/exec';
 setTitle(yearmonth);
 fetchSurvivalDataAsync(survivaDataUrl, yearmonth);
 fetchTemperatureDataAsync("balcony", year, month);

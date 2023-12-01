@@ -9,24 +9,21 @@
     <meta property="og:title" content="Survival curve of seedlings" />
     <link rel="icon" href="./img/favicon.ico" type="image/x-icon" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.js" integrity="sha512-6HrPqAvK+lZElIZ4mZ64fyxIBTsaX5zAFZg2V/2WT+iKPrFzTzvx6QAsLW2OaLwobhMYBog/+bvmIEEGXi0p1w==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="./utility.js"></script>
 </head>
 <body>
-    <h1 id="heading">Analysis</h1>
+    <h1>Survival curve</h1>
 
-    <h2>Survival status of seedlings</h2>
-    <p id="survialTableMsg">Loading...</p>
-    <div id="survialTable"></div>
-
-    <h2>Temperature</h2>
-    <div id="temperatureChart" style="width: 100%; max-width: 1200px; max-height: 600px;">
-        <h3>Balcony</h3>
-        <p id="balconyMsg">Loading...</p>
-        <canvas id="balcony"></canvas>
-        <h3>Indoor</h3>
-        <p id="indoorMsg">Loading...</p>
-        <canvas id="indoor"></canvas>
+    <div>
+        <p id="survialCurve">Loading...</p>
+        <canvas id="survialCurve" style="width: 100%; max-width: 1200px; max-height: 600px;"></div>
     </div>
-
-    <script src="./analysis.js"></script>
+    <div>
+        <div id="speciesOptions"></div>
+        <br>
+        <button id="display" hidden="true">Display</button>
+    </div>
+    
+    <script src="./survival_curve.js"></script>
 </body>
 </html>

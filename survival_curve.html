@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Survival curve</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="A dragonfluit" />
+    <meta property="og:image" content="./img/ogimage.jpg" />
+    <meta property="og:description" content="This page shows survival curve of seedlings.">
+    <meta property="og:title" content="Survival curve of seedlings" />
+    <link rel="icon" href="./img/favicon.ico" type="image/x-icon" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.js" integrity="sha512-6HrPqAvK+lZElIZ4mZ64fyxIBTsaX5zAFZg2V/2WT+iKPrFzTzvx6QAsLW2OaLwobhMYBog/+bvmIEEGXi0p1w==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+</head>
+<body>
+    <h1 id="heading">Analysis</h1>
+
+    <h2>Survival status of seedlings</h2>
+    <p id="survialTableMsg">Loading...</p>
+    <div id="survialTable"></div>
+
+    <h2>Temperature</h2>
+    <div id="temperatureChart" style="width: 100%; max-width: 1200px; max-height: 600px;">
+        <h3>Balcony</h3>
+        <p id="balconyMsg">Loading...</p>
+        <canvas id="balcony"></canvas>
+        <h3>Indoor</h3>
+        <p id="indoorMsg">Loading...</p>
+        <canvas id="indoor"></canvas>
+    </div>
+
+    <script src="./analysis.js"></script>
+</body>
+</html>

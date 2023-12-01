@@ -1,0 +1,1 @@
+const survivalCurveDataUrl = "https://script.google.com/macros/s/AKfycbwOHrjIL-Qb4Igxieu8-BGCr-wbRVV508LMrACkllFmjJB059o2pQMwD6t4h7G6H9mC/exec";

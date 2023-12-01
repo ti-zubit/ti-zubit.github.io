@@ -1,5 +1,4 @@
-async function fetchSurvivalDataAsync(yearmonth) {
-  let url = 'https://script.google.com/macros/s/AKfycbw6tJxQqIj4bnLqisHO510iEQkPDbNkSE857X7reZld5PJ9w4_jsNZ2PE8pxNHM_OJr/exec';
+async function fetchSurvivalDataAsync(url, yearmonth) {
   url += yearmonth ? "?yearmonth=" + yearmonth : "";
   await fetch(url)
     .then(response => {
@@ -13,7 +12,7 @@ async function fetchSurvivalDataAsync(yearmonth) {
         console.log(jsonData.error);
         document.getElementById("survialTableMsg").textContent = "No data.";
       } else {
-        generateTable(jsonData.data, yearmonth); // サーバーから取得したデータを表示
+        generateTable(jsonData.data, yearmonth, "link"); // サーバーから取得したデータを表示
       }
     })
     .catch(error => {
@@ -54,10 +53,9 @@ function utc2Jst(utcDate) {
   return japanTime;
 }
 
-function generateTable(data, yearmonth) {
+function generateTable(data, yearmonth, linkPage) {
 
   if(data.length < 1) {
-    
     return;
   }
 
@@ -84,10 +82,19 @@ function generateTable(data, yearmonth) {
 
     for (let i = 0; i < property_names.length; i++) {
       let cell;
-      if (i == 0) { cell = document.createElement("th") }
-      else { cell = document.createElement("td") };
       const cellText = document.createTextNode(element[property_names[i]]);
-      cell.appendChild(cellText);
+      if (i == 0) { 
+        cell = document.createElement("th");
+        cell.appendChild(cellText);
+      }
+      else { 
+        cell = document.createElement("td");
+        link = document.createElement("a");
+        link.href = `${linkPage}?species=${cellText}`;
+        link.appendChild(cellText);
+        cell.appendChild(link);
+      };
+      
       row.appendChild(cell);
     }
 
@@ -177,11 +184,17 @@ const queryParams = parseQueryString(queryString);
 
 const year = queryParams.year;
 const month = queryParams.month;
-let yearmonth = "";
+let yearmonth;
 if (year && month) {
-  yearmonth = queryParams.year + "-" + queryParams.month;
-  setTitle(yearmonth);
+  yearmonth = `${queryParams.year}-${queryParams.month}`;
+} 
+else {
+  let now = new Date();
+  yearmonth = `${now.getFullYear()}-${now.getMonth() + 1}`;
 }
-fetchSurvivalDataAsync(yearmonth);
+
+const survivaDataUrl = 'https://script.google.com/macros/s/AKfycbwOHrjIL-Qb4Igxieu8-BGCr-wbRVV508LMrACkllFmjJB059o2pQMwD6t4h7G6H9mC/exec';
+setTitle(yearmonth);
+fetchSurvivalDataAsync(survivaDataUrl, yearmonth);
 fetchTemperatureDataAsync("balcony", year, month);
 fetchTemperatureDataAsync("indoor", year, month);

@@ -13,7 +13,7 @@ async function fetchSurvivalDataAsync(url, yearmonth) {
         document.getElementById("survialTableMsg").textContent = "No data.";
       }
       else {
-        const survivalCurveLink = "./survival_curve.html";
+        const survivalCurveLink = "./survivarship_curve.html";
         generateTable(jsonData.data, yearmonth, survivalCurveLink); // サーバーから取得したデータを表示
       }
     })
@@ -39,20 +39,6 @@ async function fetchTemperatureDataAsync(place, year, month) {
     .catch(error => {
       console.error('There has been a problem in fetchTemperatureDataAsync:', error);
     })
-}
-
-function utc2Jst(utcDate) {
-  var japanTime = new Intl.DateTimeFormat('ja-JP', {
-    timeZone: 'Asia/Tokyo',
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false // 24時間制
-  }).format(utcDate);
-
-  return japanTime;
 }
 
 function generateTable(data, yearmonth, linkPage) {
@@ -91,10 +77,11 @@ function generateTable(data, yearmonth, linkPage) {
       }
       else if (i == 1) {
         cell = document.createElement("td");
-        link = document.createElement("a");
-        link.href = `${linkPage}?species=${element[property_names[i]]}`;
-        link.appendChild(cellText);
-        cell.appendChild(link);
+        let a = document.createElement("a");
+        a.href = `${linkPage}?species=${element[property_names[i]]}`;
+        a.classList.add("speciesOption");
+        a.appendChild(cellText);
+        cell.appendChild(a);
       }
       else {
         cell = document.createElement("td");
@@ -115,6 +102,25 @@ function generateTable(data, yearmonth, linkPage) {
 
   document.getElementById("survialTable").appendChild(tbl);
   document.getElementById("survialTableMsg").textContent = "";
+
+  // スタイルを適用する関数
+  function addEventListener() {
+    let elements = document.getElementsByClassName("speciesOption");
+    for (elm of elements) {
+      elm.style.color = "inherit";
+      elm.addEventListener('mouseover', () => {
+        elm.style.color = 'inherit';
+      });
+      elm.addEventListener('mouseout', () => {
+        elm.style.color = 'inherit';
+      });
+      elm.addEventListener('click', () => {
+        elm.style.color = 'inherit';
+      });
+    }
+  }
+
+  addEventListener();
 }
 
 function doPlot(data, label, id) {
@@ -168,19 +174,6 @@ function doPlot(data, label, id) {
   document.getElementById(id + "Msg").textContent = "";
 }
 
-// クエリ文字列をオブジェクトに変換
-function parseQueryString(queryString) {
-  const params = {};
-  const queryStringWithoutQuestionMark = queryString.slice(1); // 先頭の ? を削除
-
-  queryStringWithoutQuestionMark.split('&').forEach(pair => {
-    const [key, value] = pair.split('=');
-    params[key] = decodeURIComponent(value?.replace(/\+/g, ' '));
-  });
-
-  return params;
-}
-
 function setTitle(yearmonth) {
   document.getElementById("heading").textContent = "Analysis: " + yearmonth;
 }
@@ -206,3 +199,19 @@ setTitle(yearmonth);
 fetchSurvivalDataAsync(survivaDataUrl, yearmonth);
 fetchTemperatureDataAsync("balcony", year, month);
 fetchTemperatureDataAsync("indoor", year, month);
+
+document.addEventListener("DOMContentLoaded", function () {
+  let elements = document.getElementsByClassName("speciesOption");
+  for (elm of elements) {
+    elm.style.color = "inherit";
+    elm.addEventListener('mouseover', () => {
+      myLink.style.color = 'inherit';
+    });
+    elm.addEventListener('mouseout', () => {
+      myLink.style.color = 'inherit';
+    });
+    elm.addEventListener('click', () => {
+      myLink.style.color = 'inherit';
+    });
+  }
+});

@@ -109,6 +109,7 @@ function generateCurve(data) {
         datasets.push(
             {
                 label: spcData.species,
+                spanGaps: true,
                 data: spcData.survivorNumList
             });
     }

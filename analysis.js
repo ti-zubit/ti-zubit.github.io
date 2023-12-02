@@ -11,7 +11,7 @@ async function fetchSurvivalDataAsync(url, yearmonth) {
       if (!jsonData.data) {
         console.log(jsonData.error);
         document.getElementById("survialTableMsg").textContent = "No data.";
-      } 
+      }
       else {
         const survivalCurveLink = "./survival_curve.html";
         generateTable(jsonData.data, yearmonth, survivalCurveLink); // サーバーから取得したデータを表示
@@ -57,7 +57,7 @@ function utc2Jst(utcDate) {
 
 function generateTable(data, yearmonth, linkPage) {
 
-  if(data.length < 1) {
+  if (data.length < 1) {
     return;
   }
 
@@ -85,7 +85,7 @@ function generateTable(data, yearmonth, linkPage) {
     for (let i = 0; i < property_names.length; i++) {
       let cell;
       const cellText = document.createTextNode(element[property_names[i]]);
-      if (i == 0) { 
+      if (i == 0) {
         cell = document.createElement("th");
         cell.appendChild(cellText);
       }
@@ -96,11 +96,11 @@ function generateTable(data, yearmonth, linkPage) {
         link.appendChild(cellText);
         cell.appendChild(link);
       }
-      else { 
+      else {
         cell = document.createElement("td");
         cell.appendChild(cellText);
       };
-      
+
       row.appendChild(cell);
     }
 
@@ -124,7 +124,7 @@ function doPlot(data, label, id) {
     labels.push(utc2Jst(Date.parse(data[item].time)));
     values.push(data[item].temp);
   }
-  if(values.length < 1) {
+  if (values.length < 1) {
     document.getElementById(id + "Msg").textContent = "No data.";
     return;
   }
